@@ -10,9 +10,11 @@ router.get('/', async (req, res) => {
     try {
         const posts = await Post.find()
         res.status(200).json(posts)
-    } catch (error) {
+    } catch (err) {
         res.status(500).json({
-            message: "The posts information could not be retrieved"
+            message: "The posts information could not be retrieved",
+            err: err.message,
+            stack: err.stack,
         })
     }
 });
@@ -29,26 +31,50 @@ router.get('/:id', (req,res) => {
         }}       
     ) .catch(err => {
         res.status(500).json({
-            message: "The post information could not be retrieved"
+            message: "The post information could not be retrieved",
+            err: err.message,
+            stack: err.stack,
         })
     })
 });
 
 router.post('/', (req, res) => {
-    Post.insert(req.body)
-    .then(post => {
-        if (!post) {
-            res.status(400).json({message: "Please provide title and contents for the post"})
-        } else {
+    const { title, contents} = req.body
+    if (!title || !contents) {
+        res.status(400).json({ message: "Please provide title and contents for the post" })
+    } else {
+        Post.insert({ title, contents })
+        .then(({id}) => {
+        //  console.log(id);
+        return Post.findById(id)
+        }) 
+        .then(post => {
             res.status(201).json(post)
-        }
-    })
-    .catch(error => {
-        res.status(500).json({
-            message: "There was an error while saving the post to the database", 
         })
-    })
+        .catch(err=> {
+            res.status(500).json({
+                message: "There was an error while saving the post to the database",
+                err: err.message,
+                stack: err.stack,
+            })
+        })
+    }
 })
+        // router.post('/', (req, res) => {
+        //     Post.insert(req.body)
+        //     .then(post => {
+        //         if (post) {
+        //             res.status(201).json(post)
+        //         } else {
+        //             res.status(400).json({message: "Please provide title and contents for the post"})
+        //         }
+        //     })
+        //     .catch(error => {
+        //         res.status(500).json({
+        //             message: "There was an error while saving the post to the database", 
+        //         })
+        //     })
+        // })
 
 router.put('/:id', (req,res) => {
     const changes = req.body
