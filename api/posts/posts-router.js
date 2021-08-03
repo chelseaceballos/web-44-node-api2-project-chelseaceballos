@@ -1,6 +1,7 @@
 // implement your posts router here
 // GET	/api/posts	Returns an array of all the post objects contained in the database
-const express = require('express')
+const { json } = require('express');
+const express = require('express');
 const router = express.Router();
 const Post = require('./posts-model');
 
@@ -34,7 +35,19 @@ router.get('//:id', (req,res) => { // NOT PASSING
 });
 
 router.post('/', (req, res) => {
-    
+    Post.insert(req.body)
+    .then(post => {
+        if (!post) {
+            res.status(400).json({message: "Please provide title and contents for the post"})
+        } else {
+            res.status(201).json(post)
+        }
+    })
+    .catch(error => {
+        res.status(500).json({
+            message: "There was an error while saving the post to the database", 
+        })
+    })
 })
 
 
