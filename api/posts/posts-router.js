@@ -50,6 +50,22 @@ router.post('/', (req, res) => {
     })
 })
 
+router.put('/:id', (req,res) => {
+    const changes = req.body
+    Post.update(req.params.id, changes)
+    .then(post => {
+        if (post) {
+            res.status(200).json(post)
+        } else {
+            res.status(400).json({message: "Please provide title and contents for the post"})
+         } //else {
+        //     res.status(404).json({message: "The post with the specified ID does not exist"})
+        // }
+    })
+    .catch(error => {
+        res.status(500).json({message: "The post information could not be modified"})
+    })
+})
 
 // DEFAULT EXPORT
 module.exports = router
