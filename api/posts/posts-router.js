@@ -60,51 +60,28 @@ router.post('/', (req, res) => {
         })
     }
 })
-        // router.post('/', (req, res) => {
-        //     Post.insert(req.body)
-        //     .then(post => {
-        //         if (post) {
-        //             res.status(201).json(post)
-        //         } else {
-        //             res.status(400).json({message: "Please provide title and contents for the post"})
-        //         }
-        //     })
-        //     .catch(error => {
-        //         res.status(500).json({
-        //             message: "There was an error while saving the post to the database", 
-        //         })
-        //     })
-        // })
-
+        
 router.put('/:id', (req,res) => {
-    const changes = req.body
-    Post.update(req.params.id, changes)
-    .then(post => {
-        if (post) {
-            res.status(200).json(post)
-        } else {
-            res.status(400).json({message: "Please provide title and contents for the post"})
-         } //else {
-        //     res.status(404).json({message: "The post with the specified ID does not exist"})
-        // }
-    })
-    .catch(error => {
-        res.status(500).json({message: "The post information could not be modified"})
-    })
+    
 })
 
-router.delete('/:id', (req, res) => {
-    Post.remove(req.params.id)
-    .then( count => {
-        if (count > 0) {
-            res.status(200).json({ message: 'The post has now been deleted.' });
+router.delete('/:id', async (req, res) => {
+    try {
+        // throw new Error('Sad!')
+        const post = await Post.findById(req.params.id)
+        if (!post) {
+            res.status(404).json({message: "The post with the specified ID does not exist"})
         } else {
-            res.status(404).json({ message: "The post with the specified ID does not exist" })
+             await Post.remove(req.params.id)
+            res.json(post)
         }
-    })
-    .catch(error => {
-        res.status(500).json({ message: "The post could not be removed" })
-    })
+    } catch (err) {
+    res.status(500).json({
+          message: "The post could not be removed" ,
+        err: err.message,
+        stack: err.stack,
+    }) 
+  }
 })
 
 router.get('/:id/comments', (req, res) => {
