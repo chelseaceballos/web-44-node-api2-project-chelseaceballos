@@ -1,6 +1,6 @@
 // implement your posts router here
 // GET	/api/posts	Returns an array of all the post objects contained in the database
-const { json } = require('express');
+
 const express = require('express');
 const router = express.Router();
 const Post = require('./posts-model');
@@ -64,6 +64,20 @@ router.put('/:id', (req,res) => {
     })
     .catch(error => {
         res.status(500).json({message: "The post information could not be modified"})
+    })
+})
+
+router.delete('/:id', (req, res) => {
+    Post.remove(req.params.id)
+    .then( count => {
+        if (count > 0) {
+            res.status(200).json({ message: 'The post has now been deleted.' });
+        } else {
+            res.status(404).json({ message: "The post with the specified ID does not exist" })
+        }
+    })
+    .catch(error => {
+        res.status(500).json({ message: "The post could not be removed" })
     })
 })
 
